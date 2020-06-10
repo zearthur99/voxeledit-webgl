@@ -1,4 +1,71 @@
-var cubeRotation = 0.0;
+let data = [
+  [
+    [
+      0,0,0
+    ],
+    [
+      0,1,0
+    ],
+    [
+      0,0,0
+    ]
+  ],
+  [
+    [
+      0,0,0
+    ],
+    [
+      0,1,0
+    ],
+    [
+      0,0,0
+    ]
+  ],
+  [
+    [
+      0,0,0
+    ],
+    [
+      0,1,0
+    ],
+    [
+      0,0,0
+    ]
+  ],
+  [
+    [
+      0,1,0
+    ],
+    [
+      1,0,1
+    ],
+    [
+      0,1,0
+    ]
+  ],
+  [
+    [
+      0,1,0
+    ],
+    [
+      1,0,1
+    ],
+    [
+      0,1,0
+    ]
+  ] ,
+  [
+    [
+      0,0,0
+    ],
+    [
+      0,1,0
+    ],
+    [
+      0,0,0
+    ]
+  ]
+];
 
 main();
 
@@ -166,11 +233,11 @@ function mousescroll(e) {
 }
 
 
+
 mouseControl.canvas.onmousedown = mousedown;
 mouseControl.canvas.onmousemove = mousemove;
 mouseControl.canvas.onmouseup = mouseup;
 window.addEventListener('wheel', mousescroll);
-
 //
 // initBuffers
 //
@@ -469,9 +536,25 @@ function drawScene(gl, programInfo, texture, deltaTime) {
   glMatrix.mat4.invert(normalMatrix, modelViewMatrix);
   glMatrix.mat4.transpose(normalMatrix, normalMatrix);
 
+  let currentXPos = 0.5;
+  let currentYPos = 0.5;
+  let currentZPos = 0.5;
+  let increment = 2;
 
-  drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, 0,0,0);
-  drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, 1,1,2);
+  data.forEach((eachLayer) => {
+    currentXPos = 0.5;
+    eachLayer.forEach((eachRow) => {
+      currentZPos = 0.5;
+      eachRow.forEach((eachCube) => {
+        if (eachCube === 1) {
+          drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
+        }
+        currentZPos -= increment;
+      })
+      currentXPos -= increment;
+    })
+    currentYPos += increment;
+  });
 
 }
 
