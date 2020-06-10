@@ -77,7 +77,6 @@ function main() {
 
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
-  const buffers = initBuffers(gl);
 
   const texture = loadTexture(gl, 'cubetexture.png');
 
@@ -85,11 +84,12 @@ function main() {
 
   // Draw the scene repeatedly
   function render(now) {
+
     now *= 0.001;  // convert to seconds
     const deltaTime = now - then;
     then = now;
 
-    drawScene(gl, programInfo, buffers, texture, deltaTime);
+    drawScene(gl, programInfo, texture, deltaTime);
 
     requestAnimationFrame(render);
   }
@@ -219,7 +219,7 @@ function getCube(x,y,z) {
 
 }
 
-function initBuffers(gl) {
+function initBuffers(gl, x,y,z) {
 
   // Create a buffer for the cube's vertex positions.
 
@@ -231,7 +231,7 @@ function initBuffers(gl) {
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
   // Now create an array of positions for the cube.
-  var positions = getCube(-1,0,0);
+  var positions = getCube(x,y,z);
   // Now pass the list of positions into WebGL to build the
   // shape. We do this by creating a Float32Array from the
   // JavaScript array, then use it to fill the current buffer.
@@ -414,7 +414,7 @@ function isPowerOf2(value) {
 //
 // Draw the scene.
 //
-function drawScene(gl, programInfo, buffers, texture, deltaTime) {
+function drawScene(gl, programInfo, texture, deltaTime) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -472,23 +472,39 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime) {
 
   // Tell WebGL how to pull out the positions from the position
   // buffer into the vertexPosition attribute
-  {
+
+
+  drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, 0,0,0);
+  drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, 1,1,2);
+
+
+  // Update the rotation for the next draw
+
+  //cubeRotation += deltaTime;
+}
+
+function drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, x,y,z) {
+  // Tell WebGL how to pull out the normals from
+  // the normal buffer into the vertexNormal attribute.
+
     const numComponents = 3;
     const type = gl.FLOAT;
     const normalize = false;
     const stride = 0;
     const offset = 0;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-    gl.vertexAttribPointer(
-      programInfo.attribLocations.vertexPosition,
-      numComponents,
-      type,
-      normalize,
-      stride,
-      offset);
-    gl.enableVertexAttribArray(
-      programInfo.attribLocations.vertexPosition);
-  }
+
+
+  var buffers = initBuffers(gl,x,y,z);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+  gl.vertexAttribPointer(
+    programInfo.attribLocations.vertexPosition,
+    numComponents,
+    type,
+    normalize,
+    stride,
+    offset);
+  gl.enableVertexAttribArray(
+    programInfo.attribLocations.vertexPosition);
 
   // Tell WebGL how to pull out the texture coordinates from
   // the texture coordinate buffer into the textureCoord attribute.
@@ -569,10 +585,6 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime) {
     const offset = 0;
     gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
   }
-
-  // Update the rotation for the next draw
-
-  //cubeRotation += deltaTime;
 }
 
 //
