@@ -463,36 +463,27 @@ function drawScene(gl, programInfo, texture, deltaTime) {
     modelViewMatrix,  // matrix to rotate
     mouseControl.angle.x * Math.PI / 180,// amount to rotate in radians
     [1, 0, 0]);       // axis to rotate around (X)
-
   glMatrix.mat4.scale(modelViewMatrix, modelViewMatrix, [mouseControl.scale,mouseControl.scale,mouseControl.scale]);
 
   const normalMatrix = glMatrix.mat4.create();
   glMatrix.mat4.invert(normalMatrix, modelViewMatrix);
   glMatrix.mat4.transpose(normalMatrix, normalMatrix);
 
-  // Tell WebGL how to pull out the positions from the position
-  // buffer into the vertexPosition attribute
-
 
   drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, 0,0,0);
   drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, 1,1,2);
 
-
-  // Update the rotation for the next draw
-
-  //cubeRotation += deltaTime;
 }
 
 function drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, x,y,z) {
   // Tell WebGL how to pull out the normals from
   // the normal buffer into the vertexNormal attribute.
 
-    const numComponents = 3;
-    const type = gl.FLOAT;
-    const normalize = false;
-    const stride = 0;
-    const offset = 0;
-
+  const numComponents = 3;
+  const type = gl.FLOAT;
+  const normalize = false;
+  const stride = 0;
+  const offset = 0;
 
   var buffers = initBuffers(gl,x,y,z);
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
