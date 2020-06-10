@@ -173,7 +173,9 @@ var mouseControl = {
     x: 0,
     y: 0,
   },
-  scale: 1
+  scale: 1,
+  yTranslate: 0,
+  xTranslate: 0
 }
 
 function mousedown(event) {
@@ -232,12 +234,26 @@ function mousescroll(e) {
     console.log(wDelta);
 }
 
-
+function keyPress(e) {
+  if (e.key === 'a') {
+    mouseControl.xTranslate += 1;
+  }
+  if (e.key === 'd') {
+    mouseControl.xTranslate -= 1;
+  }
+  if (e.key === 's') {
+    mouseControl.yTranslate += 1;
+  }
+  if (e.key === 'w') {
+    mouseControl.yTranslate -= 1;
+  }
+}
 
 mouseControl.canvas.onmousedown = mousedown;
 mouseControl.canvas.onmousemove = mousemove;
 mouseControl.canvas.onmouseup = mouseup;
 window.addEventListener('wheel', mousescroll);
+window.addEventListener("keypress", keyPress);
 //
 // initBuffers
 //
@@ -531,6 +547,7 @@ function drawScene(gl, programInfo, texture, deltaTime) {
     mouseControl.angle.x * Math.PI / 180,// amount to rotate in radians
     [1, 0, 0]);       // axis to rotate around (X)
   glMatrix.mat4.scale(modelViewMatrix, modelViewMatrix, [mouseControl.scale,mouseControl.scale,mouseControl.scale]);
+  glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [mouseControl.xTranslate,mouseControl.yTranslate,0]);
 
   const normalMatrix = glMatrix.mat4.create();
   glMatrix.mat4.invert(normalMatrix, modelViewMatrix);
