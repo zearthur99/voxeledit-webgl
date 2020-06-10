@@ -158,6 +158,48 @@ mouseControl.canvas.onmouseup = mouseup;
 // Initialize the buffers we'll need. For this demo, we just
 // have one object -- a simple three-dimensional cube.
 //
+
+function getCube(x,y,z) {
+  return [
+    // Front face
+    -1.0+x, -1.0+y,  1.0+z,
+    1.0+x, -1.0+y,  1.0+z,
+    1.0+x,  1.0+y,  1.0+z,
+    -1.0+x,  1.0+y,  1.0+z,
+
+    // Back face
+    -1.0+x, -1.0+y, -1.0+z,
+    -1.0+x,  1.0+y, -1.0+z,
+    1.0+x,  1.0+y, -1.0+z,
+    1.0+x, -1.0+y, -1.0+z,
+
+    // Top face
+    -1.0+x,  1.0+y, -1.0+z,
+    -1.0+x,  1.0+y,  1.0+z,
+    1.0+x,  1.0+y,  1.0+z,
+    1.0+x,  1.0+y, -1.0+z,
+
+    // Bottom face
+    -1.0+x, -1.0+y, -1.0+z,
+    1.0+x, -1.0+y, -1.0+z,
+    1.0+x, -1.0+y,  1.0+z,
+    -1.0+x, -1.0+y,  1.0+z,
+
+    // Right face
+    1.0+x, -1.0+y, -1.0+z,
+    1.0+x,  1.0+y, -1.0+z,
+    1.0+x,  1.0+y,  1.0+z,
+    1.0+x, -1.0+y,  1.0+z,
+
+    // Left face
+    -1.0+x, -1.0+y, -1.0+z,
+    -1.0+x, -1.0+y,  1.0+z,
+    -1.0+x,  1.0+y,  1.0+z,
+    -1.0+x,  1.0+y, -1.0+z,
+  ];
+
+}
+
 function initBuffers(gl) {
 
   // Create a buffer for the cube's vertex positions.
@@ -170,45 +212,7 @@ function initBuffers(gl) {
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
   // Now create an array of positions for the cube.
-
-  const positions = [
-    // Front face
-    -1.0, -1.0,  1.0,
-    1.0, -1.0,  1.0,
-    1.0,  1.0,  1.0,
-    -1.0,  1.0,  1.0,
-
-    // Back face
-    -1.0, -1.0, -1.0,
-    -1.0,  1.0, -1.0,
-    1.0,  1.0, -1.0,
-    1.0, -1.0, -1.0,
-
-    // Top face
-    -1.0,  1.0, -1.0,
-    -1.0,  1.0,  1.0,
-    1.0,  1.0,  1.0,
-    1.0,  1.0, -1.0,
-
-    // Bottom face
-    -1.0, -1.0, -1.0,
-    1.0, -1.0, -1.0,
-    1.0, -1.0,  1.0,
-    -1.0, -1.0,  1.0,
-
-    // Right face
-    1.0, -1.0, -1.0,
-    1.0,  1.0, -1.0,
-    1.0,  1.0,  1.0,
-    1.0, -1.0,  1.0,
-
-    // Left face
-    -1.0, -1.0, -1.0,
-    -1.0, -1.0,  1.0,
-    -1.0,  1.0,  1.0,
-    -1.0,  1.0, -1.0,
-  ];
-
+  var positions = getCube(-1,0,0);
   // Now pass the list of positions into WebGL to build the
   // shape. We do this by creating a Float32Array from the
   // JavaScript array, then use it to fill the current buffer.
