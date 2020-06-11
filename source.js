@@ -21,112 +21,9 @@ function generateMatrix( rows, cols, depth, defaultValue){
   ));
 }
 
-var matrixSize = 7;
-let data4 = [
-  [
-    [
-      1,1,1
-    ],
-    [
-      1,1,1
-    ],
-    [
-      1,1,1
-    ]
-  ],
-  [
-    [
-      1,1,1
-    ],
-    [
-      1,1,1
-    ],
-    [
-      1,1,1
-    ]
-  ],
-  [
-    [
-      1,1,1
-    ],
-    [
-      1,1,1
-    ],
-    [
-      1,1,1
-    ]
-  ],
-];
-let data = generateMatrix(matrixSize,matrixSize,matrixSize, 0);
+var matrixSize = 10;
 
-let data3 = [
-  [
-    [
-      3,0,0
-    ],
-    [
-      0,1,0
-    ],
-    [
-      0,0,1
-    ]
-  ],
-  [
-    [
-      0,0,0
-    ],
-    [
-      0,1,0
-    ],
-    [
-      0,0,0
-    ]
-  ],
-  [
-    [
-      0,0,0
-    ],
-    [
-      0,1,0
-    ],
-    [
-      0,0,0
-    ]
-  ],
-  [
-    [
-      0,1,0
-    ],
-    [
-      1,0,1
-    ],
-    [
-      0,2,0
-    ]
-  ],
-  [
-    [
-      0,2,0
-    ],
-    [
-      1,0,1
-    ],
-    [
-      0,1,0
-    ]
-  ] ,
-  [
-    [
-      0,0,0
-    ],
-    [
-      0,1,0
-    ],
-    [
-      0,2,0
-    ]
-  ]
-];
+let data = generateMatrix(matrixSize,matrixSize,matrixSize, 0);
 
 var selectedTexture = 3;
 
@@ -163,8 +60,8 @@ function main() {
       gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
       vTextureCoord = aTextureCoord;
       // Apply lighting effect
-      highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
-      highp vec3 directionalLightColor = vec3(1, 1, 1);
+      highp vec3 ambientLight = vec3(0.6, 0.6, 0.6);
+      highp vec3 directionalLightColor = vec3(0.08, 0.08, 0.08);
       highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
       highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
       highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
@@ -225,7 +122,7 @@ function main() {
     loadTexture(gl, undefined, 255,0,253),
     loadTexture(gl, undefined, 255,0,120),
     loadTexture(gl, undefined, 221,161,255),
-    loadTexture(gl, undefined, 255,255,255),
+    loadTexture(gl, 'shell.png', 200,200,200),
   ];
 
   var then = 0;
@@ -253,7 +150,7 @@ var mouseControl = {
   lastY: 0,
   dragging: false,
   angle: {
-    x: 0,
+    x: -0,
     y: -135,
   },
   scale: 0.2,
@@ -597,7 +494,7 @@ function loadTexture(gl, url = undefined, r = 0,g = 255,b = 255, a = 255) {
         srcFormat, srcType, image);
 
       // WebGL1 has different requirements for power of 2 images
-      // vs non power of 2 images so check if the image is a
+      // vs non power of 2 images so check if the image is ađđ
       // power of 2 in both dimensions.
       if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
         // Yes, it's a power of 2. Generate mips.
@@ -666,7 +563,7 @@ function drawScene(gl, programInfo, textureSet, deltaTime) {
 
   glMatrix.mat4.translate(modelViewMatrix,     // destination matrix
     modelViewMatrix,     // matrix to translate
-    [-0.0, 0.0, -6.0]);  // amount to translate
+    [4.0, 0.0, -12.0]);  // amount to translate
   glMatrix.mat4.rotate(modelViewMatrix,  // destination matrix
     modelViewMatrix,  // matrix to rotate
     mouseControl.angle.y * Math.PI / 180,     // amount to rotate in radians
