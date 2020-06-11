@@ -8,10 +8,55 @@ var cursor = {
   }
 }
 
-let data = [
+function generateMatrix( rows, cols, depth, defaultValue){
+  return Array.from(Array(rows),
+    row => Array.from(Array(cols),
+        row => Array.from(Array(depth),cell => defaultValue)
+  ));
+}
+
+var matrixSize = 3;
+let data4 = [
   [
     [
-      0,0,0
+      1,1,1
+    ],
+    [
+      1,1,1
+    ],
+    [
+      1,1,1
+    ]
+  ],
+  [
+    [
+      1,1,1
+    ],
+    [
+      1,1,1
+    ],
+    [
+      1,1,1
+    ]
+  ],
+  [
+    [
+      1,1,1
+    ],
+    [
+      1,1,1
+    ],
+    [
+      1,1,1
+    ]
+  ],
+];
+let data = generateMatrix(matrixSize,matrixSize,matrixSize, 0);
+
+let data3 = [
+  [
+    [
+      3,0,0
     ],
     [
       0,1,0
@@ -50,12 +95,12 @@ let data = [
       1,0,1
     ],
     [
-      0,1,0
+      0,2,0
     ]
   ],
   [
     [
-      0,1,0
+      0,2,0
     ],
     [
       1,0,1
@@ -72,10 +117,12 @@ let data = [
       0,1,0
     ],
     [
-      0,0,0
+      0,2,0
     ]
   ]
 ];
+
+var selectedTexture = 3;
 
 document.getElementById("glcanvas").width = window.innerWidth;
 document.getElementById("glcanvas").height = window.innerHeight;
@@ -157,10 +204,22 @@ function main() {
   // Here's where we call the routine that builds all the
   // objects we'll be drawing.
 
-  const texture = loadTexture(gl, 'cubetexture.png');
-  const texture2 = loadTexture(gl, 'Rectangle.png');
-
-  var textureSet = [null, texture, texture2];
+  var textureSet = [
+    null,
+    loadTexture(gl, 'cubetexture.png'),
+    loadTexture(gl, 'Rectangle.png'),
+    loadTexture(gl, undefined, 115,48,0),
+    loadTexture(gl, undefined, 0,255,53),
+    loadTexture(gl, undefined, 0,246,255),
+    loadTexture(gl, undefined, 255,161,0),
+    loadTexture(gl, undefined, 0,26,255),
+    loadTexture(gl, undefined, 255,0,13),
+    loadTexture(gl, undefined, 255,255,0),
+    loadTexture(gl, undefined, 0,154,1),
+    loadTexture(gl, undefined, 255,0,253),
+    loadTexture(gl, undefined, 255,0,120),
+    loadTexture(gl, undefined, 221,161,255),
+  ];
 
   var then = 0;
 
@@ -279,14 +338,30 @@ function keyPress(e) {
     cursor.position.y-=2;
   }
   if (e.key === ' ') {
-    data[cursor.position.y/2][cursor.position.x/2][cursor.position.z/2] = 1
+    console.log("=====")
+    console.log(cursor.position);
+    console.log(cursor.position.y/2,cursor.position.x/2,cursor.position.z/2);
+    data[cursor.position.y/2][cursor.position.x/2][cursor.position.z/2] = selectedTexture;
+    console.log(data);
+    console.log("-=======")
   }
   if (cursor.position.x < 0) {
     cursor.position.x = 0;
   }
+  console.log(cursor.position.x)
+  if (cursor.position.x/2 >= matrixSize) {
+    cursor.position.x = 0;
+  }
   if (cursor.position.y < 0) {
     cursor.position.y = 0;
-  }  if (cursor.position.z < 0) {
+  }
+  if (cursor.position.y/2 >= matrixSize) {
+    cursor.position.y = 0;
+  }
+  if (cursor.position.z < 0) {
+    cursor.position.z = 0;
+  }
+  if (cursor.position.z/2 >= matrixSize) {
     cursor.position.z = 0;
   }
   console.log(cursor);
@@ -487,7 +562,7 @@ function initBuffers(gl, x,y,z) {
 // Initialize a texture and load an image.
 // When the image finished loading copy it into the texture.
 //
-function loadTexture(gl, url) {
+function loadTexture(gl, url = undefined, r = 0,g = 255,b = 255, a = 255) {
   const texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -503,32 +578,32 @@ function loadTexture(gl, url) {
   const border = 0;
   const srcFormat = gl.RGBA;
   const srcType = gl.UNSIGNED_BYTE;
-  const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
+  const pixel = new Uint8Array([r, g, b, a]);  // opaque blue
   gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
     width, height, border, srcFormat, srcType,
     pixel);
 
-  const image = new Image();
-  image.onload = function() {
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
-      srcFormat, srcType, image);
+    const image = new Image();
+    image.onload = function() {
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+        srcFormat, srcType, image);
 
-    // WebGL1 has different requirements for power of 2 images
-    // vs non power of 2 images so check if the image is a
-    // power of 2 in both dimensions.
-    if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
-      // Yes, it's a power of 2. Generate mips.
-      gl.generateMipmap(gl.TEXTURE_2D);
-    } else {
-      // No, it's not a power of 2. Turn of mips and set
-      // wrapping to clamp to edge
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    }
-  };
-  image.src = url;
+      // WebGL1 has different requirements for power of 2 images
+      // vs non power of 2 images so check if the image is a
+      // power of 2 in both dimensions.
+      if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+        // Yes, it's a power of 2. Generate mips.
+        gl.generateMipmap(gl.TEXTURE_2D);
+      } else {
+        // No, it's not a power of 2. Turn of mips and set
+        // wrapping to clamp to edge
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      }
+    };
+    image.src = url;
 
   return texture;
 }
@@ -610,7 +685,7 @@ function drawScene(gl, programInfo, textureSet, deltaTime) {
     eachLayer.forEach((eachRow) => {
       currentZPos = 0;
       eachRow.forEach((eachCube) => {
-        if (eachCube === 1) {
+        if (eachCube !== 0) {
           drawCube(gl, programInfo, textureSet[eachCube], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
         }
         currentZPos += increment;

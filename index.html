@@ -3,10 +3,27 @@
 <head>
     <meta charset="utf-8">
     <title>WebGL Demo</title>
-    <link rel="stylesheet" href="../webgl.css" type="text/css">
+    <link rel="stylesheet" href="webgl.css" >
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 </head>
 
 <body style="margin: 0; overflow: hidden">
+    <div class="controls">
+        <div>
+            <div class="colorOption" style="background: rgb(115,48,0)" onclick="selectedTexture = 3"></div>
+            <div class="colorOption" style="background: rgb(0,255,53)" onclick="selectedTexture = 4"></div>
+            <div class="colorOption" style="background: rgb(0,246,255)"onclick="selectedTexture = 5"></div>
+            <div class="colorOption" style="background: rgb(255,161,0)" onclick="selectedTexture = 6"></div>
+            <div class="colorOption" style="background: rgb(0,26,255)" onclick="selectedTexture = 7"></div>
+            <div class="colorOption" style="background: rgb(255,0,13)" onclick="selectedTexture = 8"></div>
+            <div class="colorOption" style="background: rgb(255,255,0)" onclick="selectedTexture = 9"></div>
+            <div class="colorOption" style="background: rgb(0,154,1)" onclick="selectedTexture = 10"></div>
+            <div class="colorOption" style="background: rgb(255,0,253)" onclick="selectedTexture = 11"></div>
+            <div class="colorOption" style="background: rgb(255,0,120)" onclick="selectedTexture = 12"></div>
+            <div class="colorOption" style="background: rgb(221,161,255)" onclick="selectedTexture = 13"></div>
+
+        </div>
+    </div>
     <canvas id="glcanvas" width="640" height="480"></canvas>
 </body>
 

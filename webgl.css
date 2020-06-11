@@ -1,0 +1,15 @@
+.controls {
+    position: fixed;
+    background: white;
+    width: 100px;
+    height: 100px;
+    margin: 12px 0 0 12px;
+    padding: 8px;
+}
+
+.colorOption {
+    display: inline-block;
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+}
