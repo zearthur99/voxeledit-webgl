@@ -15,7 +15,7 @@ function generateMatrix( rows, cols, depth, defaultValue){
   ));
 }
 
-var matrixSize = 3;
+var matrixSize = 7;
 let data4 = [
   [
     [
@@ -208,7 +208,7 @@ function main() {
     null,
     loadTexture(gl, 'cubetexture.png'),
     loadTexture(gl, 'Rectangle.png'),
-    loadTexture(gl, undefined, 115,48,0),
+    loadTexture(gl, undefined, 48,24,0),
     loadTexture(gl, undefined, 0,255,53),
     loadTexture(gl, undefined, 0,246,255),
     loadTexture(gl, undefined, 255,161,0),
@@ -219,6 +219,7 @@ function main() {
     loadTexture(gl, undefined, 255,0,253),
     loadTexture(gl, undefined, 255,0,120),
     loadTexture(gl, undefined, 221,161,255),
+    loadTexture(gl, undefined, 255,255,255),
   ];
 
   var then = 0;
@@ -338,17 +339,11 @@ function keyPress(e) {
     cursor.position.y-=2;
   }
   if (e.key === ' ') {
-    console.log("=====")
-    console.log(cursor.position);
-    console.log(cursor.position.y/2,cursor.position.x/2,cursor.position.z/2);
     data[cursor.position.y/2][cursor.position.x/2][cursor.position.z/2] = selectedTexture;
-    console.log(data);
-    console.log("-=======")
   }
   if (cursor.position.x < 0) {
     cursor.position.x = 0;
   }
-  console.log(cursor.position.x)
   if (cursor.position.x/2 >= matrixSize) {
     cursor.position.x = 0;
   }
@@ -364,7 +359,6 @@ function keyPress(e) {
   if (cursor.position.z/2 >= matrixSize) {
     cursor.position.z = 0;
   }
-  console.log(cursor);
 }
 
 mouseControl.canvas.onmousedown = mousedown;
@@ -680,19 +674,25 @@ function drawScene(gl, programInfo, textureSet, deltaTime) {
   let currentZPos = 0;
   let increment = 2;
 
-  for (let i = 0; i < data.length; i++) {
+  for (let i = -1; i < data.length; i++) {
     currentXPos = 0;
-    for (let j = -1; j < data[i].length; j++) {
+    for (let j = -1; j < data[0].length; j++) {
       currentZPos = 0;
-      for (let k = 0; k < data[i][0].length + 1; k++) {
-        if (j===-1){
-          drawCube(gl, programInfo, textureSet[1], projectionMatrix, modelViewMatrix, normalMatrix, -2,currentYPos,currentZPos);
+      for (let k = 0; k < data[0][0].length + 1; k++) {
+        if (i === -1) {
+          if (k < data[0][0].length) {
+            drawCube(gl, programInfo, textureSet[14], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,-2,currentZPos);
+          }
         } else {
-          if (k === data[i][j].length) {
-            drawCube(gl, programInfo, textureSet[1], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
+          if (j===-1){
+            drawCube(gl, programInfo, textureSet[14], projectionMatrix, modelViewMatrix, normalMatrix,-2,currentYPos,currentZPos);
           } else {
-            if (data[i][j][k]) {
-              drawCube(gl, programInfo, textureSet[data[i][j][k]], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
+            if (k === data[i][j].length) {
+              drawCube(gl, programInfo, textureSet[14], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
+            } else {
+              if (data[i][j][k]) {
+                drawCube(gl, programInfo, textureSet[data[i][j][k]], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
+              }
             }
           }
         }
@@ -702,7 +702,9 @@ function drawScene(gl, programInfo, textureSet, deltaTime) {
         currentXPos += increment;
       }
     }
-    currentYPos += increment;
+    if (i > -1) {
+      currentYPos += increment;
+    }
   }
   drawCube(gl, programInfo, textureSet[2], projectionMatrix, modelViewMatrix, normalMatrix, cursor.position.x,cursor.position.y,cursor.position.z);
 
@@ -799,7 +801,7 @@ function drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, n
 
   // Bind the texture to texture unit 0
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
+  gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   // Tell the shader we bound the texture to texture unit 0
   gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
