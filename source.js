@@ -680,20 +680,30 @@ function drawScene(gl, programInfo, textureSet, deltaTime) {
   let currentZPos = 0;
   let increment = 2;
 
-  data.forEach((eachLayer) => {
+  for (let i = 0; i < data.length; i++) {
     currentXPos = 0;
-    eachLayer.forEach((eachRow) => {
+    for (let j = -1; j < data[i].length; j++) {
       currentZPos = 0;
-      eachRow.forEach((eachCube) => {
-        if (eachCube !== 0) {
-          drawCube(gl, programInfo, textureSet[eachCube], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
+      for (let k = 0; k < data[i][0].length + 1; k++) {
+        if (j===-1){
+          drawCube(gl, programInfo, textureSet[1], projectionMatrix, modelViewMatrix, normalMatrix, -2,currentYPos,currentZPos);
+        } else {
+          if (k === data[i][j].length) {
+            drawCube(gl, programInfo, textureSet[1], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
+          } else {
+            if (data[i][j][k]) {
+              drawCube(gl, programInfo, textureSet[data[i][j][k]], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
+            }
+          }
         }
         currentZPos += increment;
-      })
-      currentXPos += increment;
-    })
+      }
+      if (j > -1) {
+        currentXPos += increment;
+      }
+    }
     currentYPos += increment;
-  });
+  }
   drawCube(gl, programInfo, textureSet[2], projectionMatrix, modelViewMatrix, normalMatrix, cursor.position.x,cursor.position.y,cursor.position.z);
 
 }
