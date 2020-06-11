@@ -1,5 +1,13 @@
 var isTabActive = true;
 
+var cursor = {
+  position: {
+    x: 0,
+    y: 0,
+    z: 0
+  }
+}
+
 let data = [
   [
     [
@@ -9,7 +17,7 @@ let data = [
       0,1,0
     ],
     [
-      0,0,0
+      0,0,1
     ]
   ],
   [
@@ -69,6 +77,8 @@ let data = [
   ]
 ];
 
+document.getElementById("glcanvas").width = window.innerWidth;
+document.getElementById("glcanvas").height = window.innerHeight;
 main();
 
 //
@@ -148,6 +158,9 @@ function main() {
   // objects we'll be drawing.
 
   const texture = loadTexture(gl, 'cubetexture.png');
+  const texture2 = loadTexture(gl, 'Rectangle.png');
+
+  var textureSet = [null, texture, texture2];
 
   var then = 0;
 
@@ -158,22 +171,12 @@ function main() {
     const deltaTime = now - then;
     then = now;
     if (!document.hidden) {
-      console.log("Im not hidden")
-      drawScene(gl, programInfo, texture, deltaTime);
-
-    } else {
-      console.log("I was hidden")
+      drawScene(gl, programInfo, textureSet, deltaTime);
     }
-    setTimeout(() => {
-      requestAnimationFrame(render);
-    }, 20)
-
+    requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
 }
-
-
-
 
 var mouseControl = {
   canvas: document.getElementById('glcanvas'),
@@ -182,11 +185,11 @@ var mouseControl = {
   dragging: false,
   angle: {
     x: 0,
-    y: 0,
+    y: -135,
   },
-  scale: 1,
-  yTranslate: 0,
-  xTranslate: 0
+  scale: 0.2,
+  yTranslate: -data.length,
+  xTranslate: data[0][0].length
 }
 
 function mousedown(event) {
@@ -242,7 +245,6 @@ function mousescroll(e) {
   if (mouseControl.scale > 2) {
     mouseControl.scale = 2;
   }
-    console.log(wDelta);
 }
 
 function keyPress(e) {
@@ -258,13 +260,43 @@ function keyPress(e) {
   if (e.key === 'w') {
     mouseControl.yTranslate -= 1;
   }
+  if (e.key === 'ArrowLeft') {
+    cursor.position.x+=2;
+  }
+  if (e.key === 'ArrowRight') {
+    cursor.position.x-=2;
+  }
+  if (e.key === 'ArrowUp') {
+    cursor.position.z+=2;
+  }
+  if (e.key === 'ArrowDown') {
+    cursor.position.z-=2;
+  }
+  if (e.key === 'Shift') {
+    cursor.position.y+=2;
+  }
+  if (e.key === 'Control') {
+    cursor.position.y-=2;
+  }
+  if (e.key === ' ') {
+    data[cursor.position.y/2][cursor.position.x/2][cursor.position.z/2] = 1
+  }
+  if (cursor.position.x < 0) {
+    cursor.position.x = 0;
+  }
+  if (cursor.position.y < 0) {
+    cursor.position.y = 0;
+  }  if (cursor.position.z < 0) {
+    cursor.position.z = 0;
+  }
+  console.log(cursor);
 }
 
 mouseControl.canvas.onmousedown = mousedown;
 mouseControl.canvas.onmousemove = mousemove;
 mouseControl.canvas.onmouseup = mouseup;
 window.addEventListener('wheel', mousescroll);
-window.addEventListener("keypress", keyPress);
+window.addEventListener("keydown", keyPress);
 //
 // initBuffers
 //
@@ -508,10 +540,14 @@ function isPowerOf2(value) {
 //
 // Draw the scene.
 //
-function drawScene(gl, programInfo, texture, deltaTime) {
+function drawScene(gl, programInfo, textureSet, deltaTime) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+  gl.enable ( gl.BLEND ) ;
+
   gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
   // Clear the canvas before we start drawing on it.
@@ -564,25 +600,26 @@ function drawScene(gl, programInfo, texture, deltaTime) {
   glMatrix.mat4.invert(normalMatrix, modelViewMatrix);
   glMatrix.mat4.transpose(normalMatrix, normalMatrix);
 
-  let currentXPos = 0.5;
-  let currentYPos = 0.5;
-  let currentZPos = 0.5;
+  let currentXPos = 0;
+  let currentYPos = 0;
+  let currentZPos = 0;
   let increment = 2;
 
   data.forEach((eachLayer) => {
-    currentXPos = 0.5;
+    currentXPos = 0;
     eachLayer.forEach((eachRow) => {
-      currentZPos = 0.5;
+      currentZPos = 0;
       eachRow.forEach((eachCube) => {
         if (eachCube === 1) {
-          drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
+          drawCube(gl, programInfo, textureSet[eachCube], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
         }
-        currentZPos -= increment;
+        currentZPos += increment;
       })
-      currentXPos -= increment;
+      currentXPos += increment;
     })
     currentYPos += increment;
   });
+  drawCube(gl, programInfo, textureSet[2], projectionMatrix, modelViewMatrix, normalMatrix, cursor.position.x,cursor.position.y,cursor.position.z);
 
 }
 
