@@ -1,3 +1,5 @@
+var isTabActive = true;
+
 let data = [
   [
     [
@@ -155,13 +157,22 @@ function main() {
     now *= 0.001;  // convert to seconds
     const deltaTime = now - then;
     then = now;
+    if (!document.hidden) {
+      console.log("Im not hidden")
+      drawScene(gl, programInfo, texture, deltaTime);
 
-    drawScene(gl, programInfo, texture, deltaTime);
+    } else {
+      console.log("I was hidden")
+    }
+    setTimeout(() => {
+      requestAnimationFrame(render);
+    }, 20)
 
-    requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
 }
+
+
 
 
 var mouseControl = {
