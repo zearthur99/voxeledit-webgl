@@ -8,6 +8,12 @@ var cursor = {
   }
 }
 
+var buffers = {
+  normalBuffer: null,
+  indexBuffer: null,
+  textureCoordBuffer: null
+}
+
 function generateMatrix( rows, cols, depth, defaultValue){
   return Array.from(Array(rows),
     row => Array.from(Array(cols),
@@ -235,6 +241,9 @@ function main() {
     }
     requestAnimationFrame(render);
   }
+
+  preloadBuffers(gl);
+
   requestAnimationFrame(render);
 }
 
@@ -414,27 +423,7 @@ function getCube(x,y,z) {
 
 }
 
-function initBuffers(gl, x,y,z) {
-
-  // Create a buffer for the cube's vertex positions.
-
-  const positionBuffer = gl.createBuffer();
-
-  // Select the positionBuffer as the one to apply buffer
-  // operations to from here out.
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-  // Now create an array of positions for the cube.
-  var positions = getCube(x,y,z);
-  // Now pass the list of positions into WebGL to build the
-  // shape. We do this by creating a Float32Array from the
-  // JavaScript array, then use it to fill the current buffer.
-
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-  // Set up the normals for the vertices, so that we can compute lighting.
-
+function preloadBuffers(gl) {
   const normalBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
 
@@ -544,11 +533,35 @@ function initBuffers(gl, x,y,z) {
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
     new Uint16Array(indices), gl.STATIC_DRAW);
 
+  buffers.textureCoordBuffer = textureCoordBuffer;
+  buffers.normalBuffer = normalBuffer;
+  buffers.indexBuffer = indexBuffer;
+}
+
+function initBuffers(gl, x,y,z) {
+
+  // Create a buffer for the cube's vertex positions.
+
+  const positionBuffer = gl.createBuffer();
+
+  // Select the positionBuffer as the one to apply buffer
+  // operations to from here out.
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+  // Now create an array of positions for the cube.
+  var positions = getCube(x,y,z);
+  // Now pass the list of positions into WebGL to build the
+  // shape. We do this by creating a Float32Array from the
+  // JavaScript array, then use it to fill the current buffer.
+
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
   return {
     position: positionBuffer,
-    normal: normalBuffer,
-    textureCoord: textureCoordBuffer,
-    indices: indexBuffer,
+    normal: buffers.normalBuffer,
+    textureCoord: buffers.textureCoordBuffer,
+    indices: buffers.indexBuffer,
   };
 }
 
