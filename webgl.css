@@ -1,15 +1,25 @@
 .controls {
     position: fixed;
     background: white;
-    width: 100px;
-    height: 100px;
     margin: 12px 0 0 12px;
     padding: 8px;
+    border-radius: 4px;
+}
+
+.colorContainer {
+    height: 24px;
 }
 
 .colorOption {
-    display: inline-block;
     border-radius: 4px;
     width: 24px;
     height: 24px;
+    margin: 2px;
+    float: left;
+    text-align: center;
+    cursor: pointer;
+}
+
+.formControl {
+    padding: 8px 0 8px 0;
 }

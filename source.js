@@ -136,6 +136,9 @@ function main() {
     if (!document.hidden) {
       drawScene(gl, programInfo, textureSet, deltaTime);
     }
+    if (document.getElementById('rotation').checked) {
+      this.mouseControl.angle.y+= 0.5;
+    }
     requestAnimationFrame(render);
   }
 
@@ -610,15 +613,19 @@ function drawScene(gl, programInfo, textureSet, deltaTime) {
       currentZPos = 0;
       for (let k = 0; k < data[0][0].length + 1; k++) {
         if (i === -1) {
-          if (k < data[0][0].length) {
+          if (k < data[0][0].length && document.getElementById('drawFloor').checked) {
             drawCube(gl, programInfo, textureSet[14], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,-2,currentZPos);
           }
         } else {
           if (j===-1){
-            drawCube(gl, programInfo, textureSet[14], projectionMatrix, modelViewMatrix, normalMatrix,-2,currentYPos,currentZPos);
+            if (document.getElementById('drawWalls').checked) {
+              drawCube(gl, programInfo, textureSet[14], projectionMatrix, modelViewMatrix, normalMatrix,-2,currentYPos,currentZPos);
+            }
           } else {
             if (k === data[i][j].length) {
-              drawCube(gl, programInfo, textureSet[14], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);
+              if (document.getElementById('drawWalls').checked) {
+                drawCube(gl, programInfo, textureSet[14], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos, currentYPos, currentZPos);
+              }
             } else {
               if (data[i][j][k]) {
                 drawCube(gl, programInfo, textureSet[data[i][j][k]], projectionMatrix, modelViewMatrix, normalMatrix, currentXPos,currentYPos,currentZPos);

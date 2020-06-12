@@ -9,7 +9,7 @@
 
 <body style="margin: 0; overflow: hidden">
     <div class="controls">
-        <div>
+        <div class="colorContainer">
             <div class="colorOption" style="background: rgb(115,48,0)" onclick="selectedTexture = 3"></div>
             <div class="colorOption" style="background: rgb(0,255,53)" onclick="selectedTexture = 4"></div>
             <div class="colorOption" style="background: rgb(0,246,255)"onclick="selectedTexture = 5"></div>
@@ -20,9 +20,35 @@
             <div class="colorOption" style="background: rgb(0,154,1)" onclick="selectedTexture = 10"></div>
             <div class="colorOption" style="background: rgb(255,0,253)" onclick="selectedTexture = 11"></div>
             <div class="colorOption" style="background: rgb(255,0,120)" onclick="selectedTexture = 12"></div>
-            <div class="colorOption" style="background: rgb(221,161,255)" onclick="selectedTexture = 13"></div>
-
+            <div class="colorOption" style="background: rgb(204,204,204)" onclick="selectedTexture = 0">x</div>
         </div>
+        <div class="formControl">
+            <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-primary" onclick="mouseControl.angle.x = 45; mouseControl.angle.y= -135">Perspectiva</button>
+                <button type="button" class="btn btn-primary" onclick="mouseControl.angle.x = 0; mouseControl.angle.y= -180">Frente</button>
+                <button type="button" class="btn btn-primary" onclick="mouseControl.angle.x = 0; mouseControl.angle.y= -90">Lado</button>
+                <button type="button" class="btn btn-primary" onclick="mouseControl.angle.x = 90; mouseControl.angle.y= -90">topo</button>
+            </div>
+        </div>
+        <div class="formControl">
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="rotation">
+                <label class="custom-control-label" for="rotation">Rotação automática</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" checked id="drawWalls">
+                <label class="custom-control-label" for="drawWalls">Mostrar paredes</label>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" checked id="drawFloor">
+                <label class="custom-control-label" for="drawFloor">Mostrar piso</label>
+            </div>
+        </div>
+
+        <div class="formControl">
+            <button type="button" class="btn btn-danger btn-block" onclick="data = generateMatrix(matrixSize, matrixSize, matrixSize, 0)">Limpar</button>
+        </div>
+
     </div>
     <canvas id="glcanvas" width="640" height="480"></canvas>
 </body>
