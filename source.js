@@ -150,7 +150,7 @@ var mouseControl = {
   lastY: 0,
   dragging: false,
   angle: {
-    x: -0,
+    x: 45,
     y: -135,
   },
   scale: 0.2,
@@ -563,8 +563,21 @@ function drawScene(gl, programInfo, textureSet, deltaTime) {
 
   glMatrix.mat4.translate(modelViewMatrix,     // destination matrix
     modelViewMatrix,     // matrix to translate
-    [4.0, 0.0, -12.0]);  // amount to translate
+    [-1.4, 0.0, -10.0]);  // amount to translate
   glMatrix.mat4.rotate(modelViewMatrix,  // destination matrix
+    modelViewMatrix,  // matrix to rotate
+    mouseControl.angle.x * Math.PI / 180,// amount to rotate in radians
+    [1, 0, 0]);
+  glMatrix.mat4.rotate(modelViewMatrix,  // destination matrix
+    modelViewMatrix,  // matrix to rotate
+    mouseControl.angle.y * Math.PI / 180,// amount to rotate in radians
+    [0, 1, 0]);
+  glMatrix.mat4.translate(modelViewMatrix,     // destination matrix
+    modelViewMatrix,     // matrix to translate
+    [-4, +1.4, -3.5]);
+  /*
+  glMatrix.mat4.rotate(modelViewMatrix,  // destination matrix
+
     modelViewMatrix,  // matrix to rotate
     mouseControl.angle.y * Math.PI / 180,     // amount to rotate in radians
     [0, 1, 0]);       // axis to rotate around (Z)
@@ -572,6 +585,13 @@ function drawScene(gl, programInfo, textureSet, deltaTime) {
     modelViewMatrix,  // matrix to rotate
     mouseControl.angle.x * Math.PI / 180,// amount to rotate in radians
     [1, 0, 0]);       // axis to rotate around (X)
+
+
+  glMatrix.mat4.translate(modelViewMatrix,     // destination matrix
+    modelViewMatrix,     // matrix to translate
+    [-5.0, 0.0, 4.0]);  // amount to translate
+       */
+
   glMatrix.mat4.scale(modelViewMatrix, modelViewMatrix, [mouseControl.scale,mouseControl.scale,mouseControl.scale]);
   glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [mouseControl.xTranslate,mouseControl.yTranslate,0]);
 
