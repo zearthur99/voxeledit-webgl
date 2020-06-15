@@ -16,14 +16,16 @@ var buffers = {
 
 function generateMatrix( rows, cols, depth, defaultValue){
   return Array.from(Array(rows),
-    row => Array.from(Array(cols),
-        row => Array.from(Array(depth),cell => defaultValue)
+    () => Array.from(Array(cols),
+      () => Array.from(Array(depth),() => defaultValue)
   ));
 }
 
 var matrixSize = 10;
 
 let data = generateMatrix(matrixSize,matrixSize,matrixSize, 0);
+let dataJson = undefined;
+updateDataJson();
 
 var selectedTexture = 3;
 
@@ -31,21 +33,14 @@ document.getElementById("glcanvas").width = window.innerWidth;
 document.getElementById("glcanvas").height = window.innerHeight;
 main();
 
-//
-// Start here
-//
 function main() {
   const canvas = document.querySelector('#glcanvas');
   const gl = canvas.getContext('webgl');
 
-  // If we don't have a GL context, give up now
-
   if (!gl) {
-    alert('Unable to initialize WebGL. Your browser or machine may not support it.');
+    alert('Falha ao inicializar o WebGL.');
     return;
   }
-
-  // Vertex shader program
 
   const vsSource = `
     attribute vec4 aVertexPosition;
@@ -69,8 +64,6 @@ function main() {
     }
   `;
 
-  // Fragment shader program
-
   const fsSource = `
     varying highp vec2 vTextureCoord;
     varying highp vec3 vLighting;
@@ -81,14 +74,8 @@ function main() {
     }
   `;
 
-  // Initialize a shader program; this is where all the lighting
-  // for the vertices and so forth is established.
   const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
 
-  // Collect all the info needed to use the shader program.
-  // Look up which attributes our shader program is using
-  // for aVertexPosition, aVertexNormal, aTextureCoord,
-  // and look up uniform locations.
   const programInfo = {
     program: shaderProgram,
     attribLocations: {
@@ -103,9 +90,6 @@ function main() {
       uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
     },
   };
-
-  // Here's where we call the routine that builds all the
-  // objects we'll be drawing.
 
   var textureSet = [
     null,
@@ -127,14 +111,11 @@ function main() {
 
   var then = 0;
 
-  // Draw the scene repeatedly
   function render(now) {
-
-    now *= 0.001;  // convert to seconds
-    const deltaTime = now - then;
+    now *= 0.001;
     then = now;
     if (!document.hidden) {
-      drawScene(gl, programInfo, textureSet, deltaTime);
+      drawScene(gl, programInfo, textureSet);
     }
     if (document.getElementById('rotation').checked) {
       this.mouseControl.angle.y+= 0.5;
@@ -165,7 +146,6 @@ function mousedown(event) {
   var x = event.clientX;
   var y = event.clientY;
   var rect = event.target.getBoundingClientRect();
-  // If we're within the rectangle, mouse is down within canvas.
   if (rect.left <= x && x < rect.right && rect.top <= y && y < rect.bottom) {
     mouseControl.lastX = x;
     mouseControl.lastY = y;
@@ -181,13 +161,11 @@ function mousemove(event) {
   var x = event.clientX;
   var y = event.clientY;
   if (mouseControl.dragging) {
-    // The rotation speed factor
-    // dx and dy here are how for in the x or y direction the mouse moved
+
     var factor = 100/mouseControl.canvas.height;
     var dx = factor * (x - mouseControl.lastX);
     var dy = factor * (y - mouseControl.lastY);
 
-    // update the latest angle
     mouseControl.angle.x = mouseControl.angle.x + dy;
     mouseControl.angle.y = mouseControl.angle.y + dx;
     if (mouseControl.angle.x > 85) {
@@ -196,7 +174,7 @@ function mousemove(event) {
       mouseControl.angle.x = -85;
     }
   }
-  // update the last mouse position
+
   mouseControl.lastX = x;
   mouseControl.lastY = y;
 }
@@ -214,6 +192,11 @@ function mousescroll(e) {
   if (mouseControl.scale > 2) {
     mouseControl.scale = 2;
   }
+}
+
+function updateDataJson() {
+  dataJson = JSON.stringify(data);
+  document.getElementById("dataJson").innerText = dataJson;
 }
 
 function keyPress(e) {
@@ -249,6 +232,7 @@ function keyPress(e) {
   }
   if (e.key === ' ') {
     data[cursor.position.y/2][cursor.position.x/2][cursor.position.z/2] = selectedTexture;
+    updateDataJson();
   }
   if (cursor.position.x < 0) {
     cursor.position.x = 0;
@@ -273,14 +257,8 @@ function keyPress(e) {
 mouseControl.canvas.onmousedown = mousedown;
 mouseControl.canvas.onmousemove = mousemove;
 mouseControl.canvas.onmouseup = mouseup;
-window.addEventListener('wheel', mousescroll);
+//window.addEventListener('wheel', mousescroll);
 window.addEventListener("keydown", keyPress);
-//
-// initBuffers
-//
-// Initialize the buffers we'll need. For this demo, we just
-// have one object -- a simple three-dimensional cube.
-//
 
 function getCube(x,y,z) {
   return [
@@ -368,8 +346,6 @@ function preloadBuffers(gl) {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals),
     gl.STATIC_DRAW);
 
-  // Now set up the texture coordinates for the faces.
-
   const textureCoordBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
 
@@ -406,29 +382,19 @@ function preloadBuffers(gl) {
     0.0,  1.0,
   ];
 
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates),
-    gl.STATIC_DRAW);
-
-  // Build the element array buffer; this specifies the indices
-  // into the vertex arrays for each face's vertices.
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
 
   const indexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-  // This array defines each face as two triangles, using the
-  // indices into the vertex array to specify each triangle's
-  // position.
-
   const indices = [
-    0,  1,  2,      0,  2,  3,    // front
-    4,  5,  6,      4,  6,  7,    // back
-    8,  9,  10,     8,  10, 11,   // top
-    12, 13, 14,     12, 14, 15,   // bottom
-    16, 17, 18,     16, 18, 19,   // right
-    20, 21, 22,     20, 22, 23,   // left
+    0,  1,  2,      0,  2,  3,
+    4,  5,  6,      4,  6,  7,
+    8,  9,  10,     8,  10, 11,
+    12, 13, 14,     12, 14, 15,
+    16, 17, 18,     16, 18, 19,
+    20, 21, 22,     20, 22, 23,
   ];
-
-  // Now send the element array to GL
 
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
     new Uint16Array(indices), gl.STATIC_DRAW);
@@ -440,21 +406,11 @@ function preloadBuffers(gl) {
 
 function initBuffers(gl, x,y,z) {
 
-  // Create a buffer for the cube's vertex positions.
-
   const positionBuffer = gl.createBuffer();
-
-  // Select the positionBuffer as the one to apply buffer
-  // operations to from here out.
 
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-  // Now create an array of positions for the cube.
   var positions = getCube(x,y,z);
-  // Now pass the list of positions into WebGL to build the
-  // shape. We do this by creating a Float32Array from the
-  // JavaScript array, then use it to fill the current buffer.
-
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
   return {
@@ -465,19 +421,10 @@ function initBuffers(gl, x,y,z) {
   };
 }
 
-//
-// Initialize a texture and load an image.
-// When the image finished loading copy it into the texture.
-//
 function loadTexture(gl, url = undefined, r = 0,g = 255,b = 255, a = 255) {
   const texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
 
-  // Because images have to be download over the internet
-  // they might take a moment until they are ready.
-  // Until then put a single pixel in the texture so we can
-  // use it immediately. When the image has finished downloading
-  // we'll update the texture with the contents of the image.
   const level = 0;
   const internalFormat = gl.RGBA;
   const width = 1;
@@ -485,7 +432,7 @@ function loadTexture(gl, url = undefined, r = 0,g = 255,b = 255, a = 255) {
   const border = 0;
   const srcFormat = gl.RGBA;
   const srcType = gl.UNSIGNED_BYTE;
-  const pixel = new Uint8Array([r, g, b, a]);  // opaque blue
+  const pixel = new Uint8Array([r, g, b, a]);
   gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
     width, height, border, srcFormat, srcType,
     pixel);
@@ -495,16 +442,9 @@ function loadTexture(gl, url = undefined, r = 0,g = 255,b = 255, a = 255) {
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
         srcFormat, srcType, image);
-
-      // WebGL1 has different requirements for power of 2 images
-      // vs non power of 2 images so check if the image is ađđ
-      // power of 2 in both dimensions.
       if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
-        // Yes, it's a power of 2. Generate mips.
         gl.generateMipmap(gl.TEXTURE_2D);
       } else {
-        // No, it's not a power of 2. Turn of mips and set
-        // wrapping to clamp to edge
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -519,81 +459,46 @@ function isPowerOf2(value) {
   return (value & (value - 1)) == 0;
 }
 
-//
-// Draw the scene.
-//
-function drawScene(gl, programInfo, textureSet, deltaTime) {
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
-  gl.clearDepth(1.0);                 // Clear everything
-  gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+function drawScene(gl, programInfo, textureSet) {
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearDepth(1.0);
+  gl.enable(gl.DEPTH_TEST);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
   gl.enable ( gl.BLEND ) ;
 
-  gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
-
-  // Clear the canvas before we start drawing on it.
+  gl.depthFunc(gl.LEQUAL);
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  // Create a perspective matrix, a special matrix that is
-  // used to simulate the distortion of perspective in a camera.
-  // Our field of view is 45 degrees, with a width/height
-  // ratio that matches the display size of the canvas
-  // and we only want to see objects between 0.1 units
-  // and 100 units away from the camera.
-
-  const fieldOfView = 45 * Math.PI / 180;   // in radians
+  const fieldOfView = 45 * Math.PI / 180;
   const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
   const zNear = 0.1;
   const zFar = 100.0;
   const projectionMatrix = glMatrix.mat4.create();
 
-  // note: glmatrix.js always has the first argument
-  // as the destination to receive the result.
   glMatrix.mat4.perspective(projectionMatrix,
     fieldOfView,
     aspect,
     zNear,
     zFar);
 
-  // Set the drawing position to the "identity" point, which is
-  // the center of the scene.
   const modelViewMatrix = glMatrix.mat4.create();
 
-  // Now move the drawing position a bit to where we want to
-  // start drawing the square.
-
-  glMatrix.mat4.translate(modelViewMatrix,     // destination matrix
-    modelViewMatrix,     // matrix to translate
-    [-1.4, 0.0, -10.0]);  // amount to translate
-  glMatrix.mat4.rotate(modelViewMatrix,  // destination matrix
-    modelViewMatrix,  // matrix to rotate
-    mouseControl.angle.x * Math.PI / 180,// amount to rotate in radians
+  glMatrix.mat4.translate(modelViewMatrix,
+    modelViewMatrix,
+    [-1.4, 0.0, -10.0]);
+  glMatrix.mat4.rotate(modelViewMatrix,
+    modelViewMatrix,
+    mouseControl.angle.x * Math.PI / 180,
     [1, 0, 0]);
-  glMatrix.mat4.rotate(modelViewMatrix,  // destination matrix
-    modelViewMatrix,  // matrix to rotate
-    mouseControl.angle.y * Math.PI / 180,// amount to rotate in radians
+  glMatrix.mat4.rotate(modelViewMatrix,
+    modelViewMatrix,
+    mouseControl.angle.y * Math.PI / 180,
     [0, 1, 0]);
-  glMatrix.mat4.translate(modelViewMatrix,     // destination matrix
-    modelViewMatrix,     // matrix to translate
+  glMatrix.mat4.translate(modelViewMatrix,
+    modelViewMatrix,
     [-4, +1.4, -3.5]);
-  /*
-  glMatrix.mat4.rotate(modelViewMatrix,  // destination matrix
-
-    modelViewMatrix,  // matrix to rotate
-    mouseControl.angle.y * Math.PI / 180,     // amount to rotate in radians
-    [0, 1, 0]);       // axis to rotate around (Z)
-  glMatrix.mat4.rotate(modelViewMatrix,  // destination matrix
-    modelViewMatrix,  // matrix to rotate
-    mouseControl.angle.x * Math.PI / 180,// amount to rotate in radians
-    [1, 0, 0]);       // axis to rotate around (X)
-
-
-  glMatrix.mat4.translate(modelViewMatrix,     // destination matrix
-    modelViewMatrix,     // matrix to translate
-    [-5.0, 0.0, 4.0]);  // amount to translate
-       */
 
   glMatrix.mat4.scale(modelViewMatrix, modelViewMatrix, [mouseControl.scale,mouseControl.scale,mouseControl.scale]);
   glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [mouseControl.xTranslate,mouseControl.yTranslate,0]);
@@ -643,14 +548,16 @@ function drawScene(gl, programInfo, textureSet, deltaTime) {
       currentYPos += increment;
     }
   }
+
+  if (document.getElementById('disableDepthTestCursor').checked) {
+    gl.disable(gl.DEPTH_TEST);
+  }
+
   drawCube(gl, programInfo, textureSet[2], projectionMatrix, modelViewMatrix, normalMatrix, cursor.position.x,cursor.position.y,cursor.position.z);
 
 }
 
 function drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, normalMatrix, x,y,z) {
-  // Tell WebGL how to pull out the normals from
-  // the normal buffer into the vertexNormal attribute.
-
   const numComponents = 3;
   const type = gl.FLOAT;
   const normalize = false;
@@ -668,9 +575,6 @@ function drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, n
     offset);
   gl.enableVertexAttribArray(
     programInfo.attribLocations.vertexPosition);
-
-  // Tell WebGL how to pull out the texture coordinates from
-  // the texture coordinate buffer into the textureCoord attribute.
   {
     const numComponents = 2;
     const type = gl.FLOAT;
@@ -689,8 +593,6 @@ function drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, n
       programInfo.attribLocations.textureCoord);
   }
 
-  // Tell WebGL how to pull out the normals from
-  // the normal buffer into the vertexNormal attribute.
   {
     const numComponents = 3;
     const type = gl.FLOAT;
@@ -709,14 +611,8 @@ function drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, n
       programInfo.attribLocations.vertexNormal);
   }
 
-  // Tell WebGL which indices to use to index the vertices
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-
-  // Tell WebGL to use our program when drawing
-
   gl.useProgram(programInfo.program);
-
-  // Set the shader uniforms
 
   gl.uniformMatrix4fv(
     programInfo.uniformLocations.projectionMatrix,
@@ -731,15 +627,9 @@ function drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, n
     false,
     normalMatrix);
 
-  // Specify the texture to map onto the faces.
-
-  // Tell WebGL we want to affect texture unit 0
   gl.activeTexture(gl.TEXTURE0);
-
-  // Bind the texture to texture unit 0
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  // Tell the shader we bound the texture to texture unit 0
   gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
   {
@@ -750,46 +640,27 @@ function drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, n
   }
 }
 
-//
-// Initialize a shader program, so WebGL knows how to draw our data
-//
 function initShaderProgram(gl, vsSource, fsSource) {
   const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
   const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
-
-  // Create the shader program
 
   const shaderProgram = gl.createProgram();
   gl.attachShader(shaderProgram, vertexShader);
   gl.attachShader(shaderProgram, fragmentShader);
   gl.linkProgram(shaderProgram);
 
-  // If creating the shader program failed, alert
-
   if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-    alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+    alert('Não foi possível inicializar o shader: ' + gl.getProgramInfoLog(shaderProgram));
     return null;
   }
 
   return shaderProgram;
 }
 
-//
-// creates a shader of the given type, uploads the source and
-// compiles it.
-//
 function loadShader(gl, type, source) {
   const shader = gl.createShader(type);
-
-  // Send the source to the shader object
-
   gl.shaderSource(shader, source);
-
-  // Compile the shader program
-
   gl.compileShader(shader);
-
-  // See if it compiled successfully
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));

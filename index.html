@@ -43,10 +43,19 @@
                 <input type="checkbox" class="custom-control-input" checked id="drawFloor">
                 <label class="custom-control-label" for="drawFloor">Mostrar piso</label>
             </div>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="disableDepthTestCursor">
+                <label class="custom-control-label" for="disableDepthTestCursor">Cursor sem teste de profundidade</label>
+            </div>
         </div>
-
         <div class="formControl">
-            <button type="button" class="btn btn-danger btn-block" onclick="data = generateMatrix(matrixSize, matrixSize, matrixSize, 0)">Limpar</button>
+            <div class="form-group">
+                <label for="dataJson">Dados</label>
+                <textarea class="form-control" id="dataJson" onchange="data = JSON.parse(document.getElementById('dataJson').value)"></textarea>
+            </div>
+        </div>
+        <div class="formControl">
+            <button type="button" class="btn btn-danger btn-block" onclick="data = generateMatrix(matrixSize, matrixSize, matrixSize, 0); updateDataJson()">Limpar</button>
         </div>
 
     </div>
