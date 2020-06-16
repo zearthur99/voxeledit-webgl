@@ -11,7 +11,8 @@ var cursor = {
 var buffers = {
   normalBuffer: null,
   indexBuffer: null,
-  textureCoordBuffer: null
+  textureCoordBuffer: null,
+  positionBuffer: null
 }
 
 function generateMatrix( rows, cols, depth, defaultValue){
@@ -343,8 +344,7 @@ function preloadBuffers(gl) {
     -1.0,  0.0,  0.0
   ];
 
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals),
-    gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
 
   const textureCoordBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
@@ -402,19 +402,27 @@ function preloadBuffers(gl) {
   buffers.textureCoordBuffer = textureCoordBuffer;
   buffers.normalBuffer = normalBuffer;
   buffers.indexBuffer = indexBuffer;
+  buffers.positionBuffer = gl.createBuffer();
+
 }
+
+var isFirst = true;
 
 function initBuffers(gl, x,y,z) {
 
-  const positionBuffer = gl.createBuffer();
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.positionBuffer);
 
   var positions = getCube(x,y,z);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  if (isFirst) {
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW);
+  } else {
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(positions));
+  }
+
+  isFirst = false;
 
   return {
-    position: positionBuffer,
+    position: buffers.positionBuffer,
     normal: buffers.normalBuffer,
     textureCoord: buffers.textureCoordBuffer,
     indices: buffers.indexBuffer,
