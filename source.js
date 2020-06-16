@@ -406,20 +406,20 @@ function preloadBuffers(gl) {
 
 }
 
-var isFirst = true;
+var shouldCreatePositionBuffer = true;
 
-function initBuffers(gl, x,y,z) {
+function updateCubePositionBuffer(gl, x, y, z) {
 
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.positionBuffer);
 
   var positions = getCube(x,y,z);
-  if (isFirst) {
+  if (shouldCreatePositionBuffer) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW);
   } else {
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(positions));
   }
 
-  isFirst = false;
+  shouldCreatePositionBuffer = false;
 
   return {
     position: buffers.positionBuffer,
@@ -572,7 +572,7 @@ function drawCube(gl, programInfo, texture, projectionMatrix, modelViewMatrix, n
   const stride = 0;
   const offset = 0;
 
-  var buffers = initBuffers(gl,x,y,z);
+  var buffers = updateCubePositionBuffer(gl,x,y,z);
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
   gl.vertexAttribPointer(
     programInfo.attribLocations.vertexPosition,
